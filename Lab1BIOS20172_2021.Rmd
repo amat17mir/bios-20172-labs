@@ -1,0 +1,579 @@
+---
+title: 'Lab 1: Introduction to R'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### <span style="color:green">This assignment is due at 11:59 p.m. (CDT) the day after your lab. \span
+
+<span style="color:red">Please carefully read all of the instructions and explanations in this document. Put your answers to the questions in the answers file named "Ans_LastnameFirstname.Rmd". Remember to rename this file to contain your own last and first name! Before you submit your answers, click the **Knit** button in the toolbar above this editor window, and a new .html version of this document will be created. **You will need to submit both the .Rmd and the .html version of your completed answers file to canvas for grading.** In order to properly knit and create an html file, you will need agree to install any necessary packages, and fix any big code errors. **If you are at all confused, check with your TA to verify that you have valid output files before you leave lab - sometimes packages don't install properly or there's a glitch, and it's much easier to resolve this during lab time than over e-mail.** \span
+
+R is a freely available programming language commonly used in the domain of statistics and bioinformatics. You can download the R software package here <https://cran.case.edu/> for Windows, Mac OSX, or Linux. R should already be installed on your laboratory computer, but you should install it on your own machine as well. As an interface to R, we will be using RStudio <https://www.rstudio.com/products/rstudio/download/> (select the download button under the free version of RStudio Desktop - all the way on the left of the page), which provides an interactive development environment (IDE) with many features that are helpful to beginning and advanced programmers alike. Make sure you install R **first** and then R Studio **second**.
+
+As this may be the first plunge into programming for many of you, know that R is a very practical and easy to use introductory language. The great thing about R is that is was written by statisticians... and the worst thing about R is that it was written by statisticians... While some of you may discover a few confusing nuances the deeper you dig into R, know that R has tremendous community support with plenty of helpful resources. Remember, if you're having trouble the TAs are here to help, and, most importantly, Google is your friend! There are many helpful online resources that can give you answers to any errors/questions you come across. The ones listed below tend to be very helpful. 
+
+* Standard R Introduction: www.cran.r-project.org/doc/manuals/R-intro.pdf
+* Quick-R: <http://www.statmethods.net/index.html>
+* R-help listserv archive: <http://r.789695.n4.nabble.com/R-help-f789696.html>
+* StackOverflow: <http://stackoverflow.com/>
+
+Another very useful resource is the Help tab in the bottom right panel. If you know the function you're supposed to use but don't know how to use it there are a couple ways to find out how to use the function. For example, say you want to learn how to use the function `sum()`. In the console, type `?sum()` and the documentation for the `sum()` function will appear in the bottom right panel. You could also search for `sum()` in the search bar directly underneath the Help tab in the bottom right panel. Looking directly at documentation is a great start for figuring out how functions work and allowing you to progress quicker through your labs.
+
+## Part 1: RStudio, Scripts, and R Markdown
+
+Open RStudio on your lab computer or laptop. On the bottom left-hand side of the screen you should see the R Console Window. Ignore the other windows for the time being. The console is where you can actually type commands in R that the computer will interpret and execute. Let's try out some basic features of R. Try typing the following into the R console and then pressing enter: 
+
+```{r eval = FALSE}
+5 + 3
+```
+
+The output should look something like:
+
+```{r comment = '', echo = FALSE}
+5+3
+```
+
+R can be used a calculator just like this for all basic arithmetic operators. The table below details the available functions.
+
+| Operation | Symbol in R |
+|:---------:|:-----------:|
+|Addition   |	+           |
+|Subtraction|	-           |
+|Multiplication|	*       |
+|Division	  |  /          |
+|Exponentiation| 	^       |
+
+It is often most convenient to deal with large numbers in scientific notation (something like $1.4\times 10^9$). In R, you can represent this value as either
+
+```{r eval = FALSE}
+1.4e9
+```
+or
+```{r eval = FALSE}
+1.4e+09
+```
+
+RStudio conveniently gives you an interactive command prompt, which is a great place to test out R commands or to run quick calculations. However, it would be very inconvenient if you had to type the same series of steps every single time you wanted to run something in R, especially if you wanted to repeat this process many times. Most actual programming in R is done with scripts. In a script, a series of steps can be written once, edited later, and be executed repeatedly.
+
+To open a new script in RStudio, click the green and white document icon at the top left of the RStudio window. From the drop down menu, select "R Script" (alternatively, select **File** -> **New File** -> **R Script**. An untitled document should appear at the top left of your RStudio window above the R console.
+
+In this document, you can type any command that works in R. Each command must be placed on its own line. Alternatively, commands can be separated by a semi-colon (This is, however, bad practice. **Put commands on their own line!**). Moreover, you can write multiple lines of code at the same time, save your work, and even email your scripts to your TA for help! Using RStudio, you can run either selected portions of your script or the entire document. To run a selected portion of your script, highlight the lines of interest and select **Run** at the top of the script window. To execute the entire script, click **Source**. When you save R scripts, you should make sure to keep the name informative and then to always end the document name with the extension ".R".
+
+For the remainder of the lab and when working with R in general, it's highly advisable to use the RStudio's scripting window as a programming workspace, and then to execute the commands using **Run** and **Source**.
+
+Another important feature of scripting is the **commenting out** indicator, the **#** sign. Any characters typed between a **#** symbol and a line break are ignored by R when a script is executed. As such, frequent and liberal use of **#** comments is a useful way to annotate a script. This is important so that somebody else (including yourself months down the line) can open up a script and understand precisely what each portion of the code is doing.
+
+Instead of submitting your work as simple R scripts, however, you will be using **R Markdown**. R Markdown is a set of packages (additions to R) that allow us to combine R code and pretty formatted text in a single document (an R Markdown file ending in .Rmd).
+
+<span style="color:purple"> Please, for this section, refer directly to the Rmd file when you want to see the formatting syntax that is presented. \span
+
+R markdown is able to produce several file types, such as PDF, HTML and more. This lab is set up to be knitted as an HTML file, as you can see on the header of the code.   
+
+In R markdown, you can write free text just by writing in the white space of the R Markdown file in your command window. Line breaks will be introduced automatically both in the Rmd code and in the HTML file. On the other hand, paragraph breaks need special formatting to be introduced. To tell R Markdown to introduce a paragraph break end the previous paragraph with double space. We ask that you provide answers in blue. In the answers file you will see spots for you to write your answers that look like this: 
+
+<span style="color:blue"> Your answer here \span
+
+The span tag simply delineates the presence of a line of text, and the **style** attribute on it allows you to, well, style it. For the purposes of these labs, the only style attribute you will use is color, for changing the color of the text. This syntax comes from HTML (the language used to create websites), and you can use any HTML command in this R markdown file. To make text **bold** delimit it in double asterisks, and to make it in *italics*, delimit it in a single asterisk. You can also write mathematical expressions using LaTeX in R markdown, by delimiting the LaTeX expression by $ as in $\pi r^2$.
+
+Most of your labs will ask you to write R scripts, or R code. To directly embed those in the lab, you can introduce an R code chunk by delimiting the R code with triple grave accents (the key next to 1 on your keyboard) followed by {r}
+and then close the code chunk with triple grave accents again, as seen below. Alternatively, you can use the button in the toolbar (green square button with a c inside of it and an orange arrow to the left) from the toolbar above to insert a code chunk. The keyboard shortcut for this is <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd> for Windows or <kbd>option</kbd>+<kbd>Command</kbd>+<kbd>I</kbd> for Mac.
+
+```{r}
+#This is a code chunk
+```
+
+You can find a very convenient cheat sheet for R markdown online at: https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf. Another good reference is the [Github Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet). And again,
+don't forget that internet and your TA can help you if you are having any trouble.
+
+<span style="color:red">You are expected to provide answers to the following questions in your answer file ("Ans1LastFirstname.Rmd"). Any text responses should be in blue like so: <span style="color:blue"> your answers.</span> Any code should be included in code chunks like so: 
+```{r}
+#your coding answers go here
+#with comments when necessary
+```
+<span style="color:red">All  questions will always be written in green. Please submit your lab report by filling out and kniting the answers Markdown file "Ans1LastnameFirstname.Rmd" **(please replace Lastname and Firstname with your last and first names, respectively; please do not add spaces, hyphens, or underscores)** and uploading it to the appropriate Lab 1 submission link for your lab day on Canvas.</span>
+
+#### Part 1 Questions
+
+<span style="color:green">
+**1.0** Please verify with your TA that you have a valid file output upon clicking Knit before you leave lab!</span>
+
+<span style="color:green">
+**1.1** Write a line of code to calculate the value of pi raised to the 8th power. (R has a built in value for pi, called simply `pi`)</span>
+
+<span style="color:green">
+**1.2** Use scientific notation to multiply four billion by pi cubed.</span>
+
+<span style="color:green">
+**1.3** Run the following command in the console: 2(5+7). What happens, and why does this occur?\span
+
+
+## Part 2: Variables and Vectors
+
+Variables in R are used to store and access numbers, strings of letters, or other data for later use. Creating and accessing values in variables is a task that is at the very heart of any programming project. In R, to create a variable, you must first assign some value to the variable. The operator in R to do this is `<-` (you can also use a **single** `=` sign, though the `<-` is traditionally used). This works by declaring the variable name on the left of the operator, and the value to be stored on the right of the operator. Think of it as an arrow from the value you want stored to the variable that you want to store it in. The class of data that the variable stores is automatically determined during assignment. Foir example, storing `7` will create a *numeric* variable, storing `"7"` will create a *character* (string) variable (notice the quotes), storing `7L` will create an *integer* variable, storing `TRUE` will create a *logical* variable, etc.
+
+Let's try this in R now by storing a number. To assign the value `5` to the variable `x`, you simply type the following into the R prompt like this:
+
+```{r}
+x <- 5
+```
+
+If you simply type `x` into the command prompt after assigning the variable, you should see the following output:
+
+```{r comment = ''}
+x
+```
+
+Now look at the top right section of RStudio under the workspace tab. As you can see, RStudio conveniently keeps track of the variables that are in our current workspace.
+
+Also, if you click on the history tab you see that RStudio also records each command that has been executed. These logging features can be incredibly helpful, especially when working on more complicated tasks.
+
+Now try typing y into the R command prompt. You should see an error message.
+
+```{r error = TRUE, comment = ''}
+y
+```
+
+This means that the R session does not have any value attributed to the variable `y`. Variables can have expressions or functions in them that reference other variables. For example, let's set `y` equal to twice the value of our `x` variable:
+
+```{r comment = ''}
+y <- 2 * x
+y
+```
+
+After variables have been assigned, they can be reassigned to new values. Try setting `x` to `10` and then find the value of `y`. You should see something like the output below:
+
+```{r comment = ''}
+x <- 10
+y
+```
+
+What happened? If you recall, we defined y as twice the value of `x` when `x` was equal to `5`. The variable `y` did not store the entire expression, but instead only the output of the expression (which was `10`). In order to get the updated value, we need to reset the value of `y` as follows.
+
+```{r comment = ''}
+y <- 2 * x
+y
+```
+
+What if you want to store more than one value in a variable? You will need to create an **object**. There are a number of ways to do this. Types of objects in R include matrices, lists, vectors, and others. Right now, we will focus on vectors, which store several elements in the same one-dimensional variable. To create your first vector, try typing something like the following in the command prompt:
+
+```{r comment = ''}
+myVec <- c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+myVec
+```
+
+Let's break this command down: You are using the `c()` function (which stands for concatenate) to "glue" together the four values, which are each separated by commas. Functions in R have a function name followed by parentheses, which contain the arguments of the function, which are separated by commas. We will learn many more functions in R throughout the labs.
+
+There are also many other ways to create vectors, such as `:` which was talked about in your recording this week as well as `seq()`, which you can learn about by typing `?seq()` in your console as previously mentioned. Additionally, you can check the type of object stored in a vector by calling `class(myVec)` or generally apply the `class()` function to whatever vector you are working with.
+
+#### Part 2 Questions
+
+<span style="color:green">
+**2.1** Using c(), create a new **character vector** (vector of strings) containing your first name, last name, and the string `"BIOS20172"` </span>
+
+
+## Part 3: Working with Vectors
+
+What if we want to find the sum of the elements of our vector? Luckily, there is a built-in function in R that calculates the sum of the objects input into it. Its name is, appropriately, `sum()`. Try the following command to find the sum of the numbers contained in myVec:
+
+```{r comment = ''}
+sum(myVec)
+```
+
+Once you have a vector, you can access individual elements of the vector by using the index feature of R. (Note to those with exposure to other programming languages: index values in R start with 1 and not 0!) The index is simply what position in the vector whatever item is - for example, if you want to obtain the first element in a vector, you simply type something like the following:
+
+```{r comment = ''}
+myVec[1]
+```
+
+This can be repeated for any value that you care about in the vector:
+
+```{r comment = ''}
+myVec[3]
+myVec[6]
+myVec[9]
+```
+
+So `myVec[1]` will give you this first item that you entered into your vector, `myVec[2]` will give you the second item, etc. If you want to pick out a range of numbers (say, the elements in the vector from position `3` to position `7`), you can simply use a colon when subsetting the vector:
+
+```{r comment = ''}
+myVec[3:7]
+```
+
+#### Part 3 Questions
+
+<span style="color:green">
+**3.1** What are the outputs for each of the following commands? Describe what each of the following commands are doing in comments next to each line of code. \span
+```{r eval = FALSE}
+myVec[1:8]
+myVec[-2] #look carefully!
+myVec[c(2,4,6)]
+myVec[2] <- 15 
+4+myVec
+```
+
+<span style="color:green">
+**3.2** A bacterial population grows at the following rate: $N(t) = N_0(2^t)$, where $N_0$ is the initial population. Assuming $N_0=100$, create variables to reflect this model and calculate the number of bacteria after 3 reproductive cycles ($t=3$). (**Note**: In order to receive full credit, make sure to use variables with assigned values, like t and N_0, rather than using numeric values alone)
+</span>
+
+<span style="color:green">
+**3.3** A normal resting heart rate for adults ranges from 60 to 100 beats a minute. The average ejection volume for adults is approximately 70 mL/beat. Store this in a variable called `EjectionVolume`. Next, create a vector `HeartRate` containing all of the multiples of 5 between 60 and 100 (**Hint**: use the `seq()` function, type `?seq()` into your console if you need help). Use both the variable and vector you just created to calculate the total amount of blood that has been ejected in **200 minutes** for <b>each heart rate</b> in this range of heart rates *(hint: the final answer to this question will be a <b>single</b> vector!)*.</span>
+
+
+## Part 4: Working with Matrices
+
+Matrices are very similar to vectors in that they contain many values. However, there are many situations in which a vector is not sufficient to hold all of our data of interest. Matrices come in handy because they are 2 dimensional, not 1 dimensional like vectors.
+
+Matrices can be created in the following way:
+
+```{r comment = ''}
+matrix(nrow = 2, ncol = 2, data = 1:4)
+```
+
+As you may have guessed, the `nrow` and `ncol` arguments dictate how many rows and columns there are in the matrix. The data argument takes a vector, and subsequently populates the elements of the matrix with the values in the vector. In R's matrix command there is a default argument `byrow`, which by default is set to `FALSE`. However, this can be overridden by the following:
+
+```{r comment = ''}
+matrix(nrow = 2, ncol = 2, data = 1:4, byrow =TRUE)
+```
+
+#### Part 4 Questions
+
+<span style="color:green">
+**4.1** Do you see a difference in the two matrices? What do you think the `byrow` argument is doing?</span>
+
+Above we specified a vector that was conveniently the same size as the number of elements in our matrix.
+
+Like vectors, matrices can be used with a lot of R's built-in functions. Create the following matrix.
+
+```{r comment = ''}
+x <- matrix(nrow = 5, ncol = 5, data = 1:25)
+x
+```
+
+If we use the built-in R function `rowMeans()`, we can obtain the mean of each row of data in our matrix (returned as a vector).
+
+```{r comment = ''}
+rowMeans(x)
+```
+
+Similarly, the built-in function `colMeans()` will get us the means of each of the columns:
+
+```{r comment = ''}
+colMeans(x)
+```
+
+<span style="color:green">
+**4.2** Try using some of the built-in functions on this matrix (i.e. `mean()`, `sd()`, `sum()`, etc.). How is R performing these calculations (is it by row, by column, or all elements in the matrix?)</span>
+
+Like we did for vectors, we could use `length()` to determine the number of elements in the matrix. However, this doesn't help us if we want to know the number of rows or the number of columns. Thankfully, there are built-in functions to help us with that also.
+
+```{r comment = ''}
+ncol(x)
+nrow(x)
+```
+
+If we want to know the overall dimensions of the matrix, we can use the built-in function dim(), which will return a vector.
+
+```{r comment = ''}
+dim(x)
+```
+
+<span style="color:green">
+**4.3** Make a matrix of your own that contains a different number of rows and columns. Which element of the vector returned by `dim()` represents the number of rows? Which represents the number of columns?</span>
+
+We can also access individual elements of our matrix. For the following exercises, create the following matrix:
+
+```{r comment = ''}
+testMatrix <- matrix(nrow = 3, ncol = 3, data = 1:9)
+testMatrix
+```
+
+Like with vectors, we access the elements of a matrix using brackets. However, this time we have to provide two values to the brackets instead of just one. But which value represents the rows and which represents the columns? For you hipsters out there, just think of RC Cola, or more specifically just the RC part. **The index for the row comes first and then the index for the column.** Say we wanted to find the value in the third row and the second column; the syntax would be the following:
+
+```{r comment = ''}
+testMatrix[3, 2]
+```
+
+If we wanted to get the element in the second row at the third column:
+
+```{r comment = ''}
+testMatrix[2, 3]
+```
+
+<span style="color:green">
+**4.4** Create a 3 x 3 matrix with whatever starting values you please. Use indexing to replace each element in the second row of the matrix with a new value.</span>
+
+If we want all values in the second row returned as a vector, then we simply leave the column value blank:
+
+```{r comment = ''}
+testMatrix[2,]
+```
+
+Or if we wanted all values in the second column:
+
+```{r comment = ''}
+testMatrix[, 2]
+```
+
+Just like with vectors, if two matrices have the same dimensions (and contain numeric data) we can perform arithmetic operations on them.
+
+```{r comment = ''}
+testMatrix + testMatrix
+testMatrix * testMatrix
+```
+
+**Note that the above matrix multiplication is not true matrix multiplication.** If you are not familiar with matrix multiplication, take a look at this tutorial (<https://www.mathsisfun.com/algebra/matrix-multiplying.html>) or ask one of the TAs for help. **We will go over matrix multiplication in the lecture**.
+
+
+## Part 5: Logical Expressions
+
+R is also able to evaluate logical statements, which are either true or false. Execute the following commands into your R console:
+
+```{r comment = ''}
+2 == 2
+3 == 4
+```
+
+Here we have R evaluate if the values on either side of the `==` operator are equal. Note that since many programming languages use `=` to assign a value to a variable, the `==` operator is used to assess equality. This **will not work** if you accidentally use `=`, so make sure that you are using `==` when you are supposed to!
+
+R has other logical operators as well. The `&&` (AND) and `||` (OR) operators are slightly more complex. AND and OR operators evaluate multiple statements and determine if those statements as a whole are `TRUE` or `FALSE`.
+
+```{r comment = ''}
+x <- 4
+(x > 3) && (x < 5)
+```
+
+This line is asking if x is greater than 3 and less than 5. In this case, both logical statements (`x > 3` and `x < 5`) are true. Therefore the overall expression returns `TRUE`. If we were to say
+
+```{r eval = FALSE}
+x <- 4
+(x > 10) && (x < 5)
+```
+
+R returns 
+
+```{r echo = FALSE, comment = ''}
+x <- 4
+(x > 10) && (x < 5)
+```
+
+since `x`, which has the value of `4`, is not greater than `10`. However, if we change the `&&` operator to `||`  (OR) the expression will return `TRUE`. 
+```{r comment = ''}
+(x > 10) || (x < 5)
+```
+
+Even though the left hand side of the expression evaluates to FALSE, the right-hand side (`x < 5`) evaluates to `TRUE`. With OR operators only one part of the statement needs to be true for the entire expression to return `TRUE`.
+
+Note that using parentheses with logical expressions often isn't necessary, but they can improve code readability and make the expression more transparent to programmers. This is particularly true with longer and more complicated expressions.
+
+#### Part 5 Questions
+
+<span style="color:green">
+**5.1** Play around with the logical expressions `<`, `>`, `<=`, `>=`, and `!=` in your console. What do each of these expressions mean in R?</span>
+
+<span style="color:green">
+**5.2** Write two logical expressions using `==` with one expression yielding `TRUE` and the second yielding `FALSE`. Then do the same for `&&` (AND) and `||` (OR) operators.</span>
+
+
+## Part 6: Control Flow - if, else
+
+Logical expressions are an essential part of control flow. Control flow refers to programmatic decision-making that determines which statements will be executed, or how many times something should be executed. It seems complicated, but do not fret, control flow is not as daunting as it sounds.
+
+Frequently, a programmer wants a particular command to be executed only when a certain condition is met. For a real world example, think of those pesky unmanned radar guns. They capture the speed of each passing car, but they only send a ticket to the owner if the speed limit is exceeded. In R, this conditional logic can be represented as the following. 
+
+```{r comment = ''}
+carSpeed <- 35
+speedLimit <- 30
+if(carSpeed > speedLimit){
+  print("Give ticket")
+} else {
+  print("Do nothing")
+}
+```
+
+The logical statement inside the `if()` statement is evaluated. If the contents evaluate to `TRUE` the commands contained in the following open and closed curly braces (`{}`) are executed. Take note of the use of curly braces. Effectively, **if** the car's speed is greater than the speed limit, **then** we give a ticket - **else**, we do nothing. As you will see, they are integral to various methods of control flow in R. Since the car's speed exceeded the speed limit, a ticket was given. Now let's see what happens when the driver is being a good citizen.
+
+```{r comment = ''}
+carSpeed <- 30
+speedLimit <- 30
+if(carSpeed > speedLimit){
+  print("Give ticket")
+} else {
+  print("Do nothing")
+}
+```
+
+In this instance the contents of the if statement evaluates to `FALSE`. Therefore, the statements contained in the curly braces after the else statement are executed.
+
+#### Part 6 Questions
+
+<span style="color:green">
+**6.1** What does `FALSE == 0` return? What about `TRUE == 1`? </span>
+
+<span style="color:green">
+**6.2** A fever usually isn't dangerous unless it reaches 102 degrees F. Write an if-else statement that instructs patients to "seek medical attention" if their fever is beyond this threshold, or to "do nothing" if there fever is within an acceptable range. (You can assume anything less than 102 would be an acceptable range for the purposes of this lab.)</span>
+
+<span style="color:green">
+**6.3**	What is the result of `if(0){print("A")}else{print("B")}` (**Note**: This is not a properly formatted code chunk, you will need to rewrite it to run it)? Explain your reasoning for why you think R returns this output. </span>
+
+<span style="color:green">
+**6.4** Write a nested if statement (an if statement within an if statement). *(note: the if or else part of the statement must be immediately followed by another if or else statement)* </span>
+
+
+## Part 7: Control Flow - for loops
+
+It's important to remember that computers are very good for automating tedious tasks. For example, say we wanted to take the square of all numbers 1 through 10. We could do this by typing each command explicitly:
+
+```{r comment = ''}
+1^2
+2^2
+3^2
+```
+
+However, this approach is exhausting and is prone to human error. A more elegant solution is to use a for loop. A for loop iterates over a fixed set of values or elements. For each iteration, some specified tasks are performed. Ignore the syntax for the moment, and in your command prompt input the following.
+
+```{r comment = ''}
+for(i in 1:10){
+  print(i^2)
+}
+```
+
+So what is happening here? We are telling R that we would like it to iterate over all values 1 through 10. With each iteration, we assign a value to the indexing variable `i`. So on the first iteration `i` will take the first value of the vector 1:10 (which in this case is 1). On the second iteration `i` will take the second value of the vector 1:10 which is 2, etc. Note the use of brackets (`{` and `}`). These brackets indicate the commands should be executed during each iteration of the for loop. 
+
+In the case above, we are asking R to print to the console the square of the value `i`. However, multiple commands can be executed within each iteration of a for loop:
+
+```{r comment = ''}
+for(i in 1:3){
+  x <- i + 10
+  y <- x * 2
+  z <- y ^ 2
+  print(z)
+}
+```
+
+While() loops are another way to iterate over a set of values. While() loops will iterate as long as the expression within parentheses evaluates as `TRUE`. The following example, `x` is assigned to a random number between 0 and 1. If `x` is less than 0.8, the while loop will be evaluated and x will be assigned to a new random number between 0 and 1. As soon as `x` is greater than 0.8, the while loop terminates.
+
+```{r comment = ''}
+x <- runif(1) # x is a random number between 0 and 1
+print(x)
+while(x <= 0.8){
+  x <- runif(1)
+  print(x)
+}
+```
+
+Sometimes, a while loop and a for loop can be used interchangebaly. For example, above we used a for loop to print the squares of all the numbers between 1 and 10. We can do the same with a while loop:
+
+```{r comment = ''}
+i <- 1
+while(i <= 10){
+  print(i^2)
+  i <- i + 1
+}
+```
+
+Generally, it is best to use a for loop when you know the items you want to iterate over (for example, the numbers 1-10). A while loop is really useful when you don't know exactly when the stopping-point will occur (for example, when `x` is randomly assigned to a value greater than 0.8). 
+
+#### Part 7 Questions
+
+<span style="color:green">
+**7.1**	The command `x%%y` gives you the value of `x` mod `y`. That is, it gives you the remainder when you divide a number `x` by another number `y`. When y=2, what will be the value of `x%%y` when `x` is even? What is the answer when instead `x` is odd? </span>
+
+<span style="color:green">
+**7.2** With the answers to 7.1 in mind, write a single for loop that iterates from 1 to 20, and have it print out the odd numbers between 1 and 20 as well as the number 12. </span>
+
+<span style="color:green">
+**7.3**	So far all the for loops we've written have iterated over numbers. R has a built-in variable `letters`, which is a vector containing all lower-case letters of the alphabet. Write a for loop that iterates over `letters`, as in replace the numerical vector over which `i` normally iterates with `letters`. Do for loops always have to iterate over numbers?</span>
+
+<span style="color:green">
+**7.4** The following is an example of a while loop that is not quite correct. Explain what would happen if the code below is executed, and make a change to the while loop that fixes the problem (do **NOT** run the code before fixing it). </span>
+
+```{r eval = FALSE}
+x <- 1
+while(x <= 5){
+  print(x + x)
+}
+```
+
+## Review 
+Here's a list of the commands and concepts we learned in this lab. Make sure you understand how each of these work to prepare for the lab quiz.
+
+| Operation         | Syntax in R                 |
+|:-----------------:|:---------------------------:|
+|Addition           | `+`                           |
+|Subtraction        | `-`                           |
+|Multiplication     | `*`                           |
+|Division           | `/`                           |
+|Exponentiation     |`^`                            |
+|Variable assignment| `<-`                          |
+|Vector             | `c()`                        |
+|Indexing a vector  | `myVec[i]`                    |
+|To sum a vector    |`sum()`                       |
+|Logical expressions| `==`, `&&`, `||`, `<`, `>`, `<=`, `>=`, `!=`|
+|If statement       | `if( ){ }else{ }`             |
+|For loop           | `for(i in . . .){ }`          | 
+|Mod                | `x%%y`                        |
+
+We can use the concepts we learned in lab to analyze the contents of a genome sequence. You will be analyzing the Dengue virus genome, a virus that causes Dengue fever and is classified as a neglected tropical disease by the World Health Organization. 
+
+
+First install seqinr, a package we will be using to analyze the Dengue virus.
+```{r eval = FALSE}
+install.packages('seqinr')
+library('seqinr')
+```
+
+
+## Reading Data in R
+
+Up to this point we've been using arbitrary data for all of our exercises. As you would expect, we can load our own data into R. We will be working with a lot of data in this lab, so make sure they are all in the **same** folder, along with your working Rmd file. Now, we want to set this folder as our **working directory** so that R is able to locate them. There are two ways to set the working directory: 
+
+1) Select "Session" from the Rstudio drop down menu and select "Set Working Directory -> To Source File Location" (if you save a dataset in a folder other than where your working Rmd file is saved, set your working directory to that folder via "Choose Directory..." instead). 
+
+or,
+
+2) Using the `setwd()` function, write the location of the folder within the parentheses and run it in your console. To see the address of your current working directory, just type `getwd()` into your console. 
+
+The file dengue_seq.fasta on Canvas contains the Dengue DEN-1 DNA sequence. Download this file onto your computer and set the appropriate working directory based on the location of the file. Having set our working directory, the following command can now be used to read in our data file: 
+
+
+```{r eval = FALSE}
+dengue <- read.fasta(file = 'dengue_seq.txt')
+dengue_vec <- as.vector(dengue[[1]])
+```
+
+```{r echo = FALSE, message = FALSE}
+#Silently runs the last 3 commands above for the R Markdown environment
+library('seqinr')
+dengue <- read.fasta(file = 'dengue_seq.txt')
+dengue_vec <- as.vector(dengue[[1]])
+```
+
+The variable `dengue_vec` is a vector consisting of the nucleotide sequence of the Dengue genome. 
+
+<span style="color:green">
+1. Using indexing, find the first 20 nucleotides in the dengue genome.</span> 
+
+<span style="color:green">
+2. Using a **for loop**, find the length of the dengue genome. To do this, outside of the for loop first define the variable `length <- 0`. Then with a for loop, iterate over each element of `dengue_vec`, and with each iteration add 1 to `length`. This should look very similar to the body of the while loop just before part 7. </span>
+
+<span style="color:green">
+3. Using a **for loop** and an **if statement**, find the number of "c" nucleotides in the dengue genome. Hint: this is similar to question 2, but with an added if statement. </span>
+
+<span style="color:green">
+4. Using a **for loop** and an **if statement** find the number of "g" nucleotides in the dengue genome.</span>
+
+<span style="color:green">
+5. One fundamental property of a genome sequence is its GC content, the fraction of Gs and Cs in the nucleotide sequence: $$\text{GC Content} = \frac{\#Gs + \#Cs}{\text{length of sequence}}\times 100.$$ Using your answers from questions 2, 3, and 4, calculate the GC content for the Dengue genome.</span>
+
+<span style="color:green">
+6. Research built-in functions in R. Successfully execute 5 functions that were not explicitly covered in this lab. Through comments in your code, briefly describe what the function does.</span>
+
+## Logicals Continued
+
+<span style="color:green">
+7.	What happens if we have an if() statement which doesn't contain a logical expression? In particular, consider the if-else block `if(2){print("A")}else{print("B")}`) - what does this output? Explain your reasoning for why you think R returns this output (**Hint**: is 2 `TRUE`? Check `2==TRUE` in your console). </span>
+
