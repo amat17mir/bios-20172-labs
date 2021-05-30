@@ -1,0 +1,457 @@
+
+# Lab4 Answers File
+--
+Please write your answers into the space below the questions. Knit this file when you are done to check that all code runs. Remember to rename the file to contain *your actual* Last and First name and **submit both the Rmd and Html file to canvas**.
+--
+#### Amatullah Mir
+
+**1)**
+<span style="color:blue"> The probability of a healthy person staying healthy the next day is 0.79, and the probability of an infected person remaining infected the next day is 0.83. </span>
+
+**2**
+```{r}
+days<-365
+CURstate<-0 #Let's represent the healthy state with 0 and the infected state with 1
+state<-numeric(days)
+for(i in 1:days){
+  randomNum<-runif(1)  #runif(1) randomly generates a number between 0 and 1   
+  if(CURstate==0){
+    if(randomNum < .21){
+      CURstate <- 1
+    }else{
+      CURstate <- 0
+    }
+  }else{
+    if(randomNum < .17){
+      CURstate<-0
+    }else{
+      CURstate<-1 
+    }
+  }
+  state[i]<-CURstate
+}
+state
+```
+<span style="color:blue"> 
+
+<span style="color:blue">  line 1: here we assign a variable "days" as 365, to represent the number of days in a year.
+
+<span style="color:blue">  line 2: CURstate is another variable that is representative of the state of an individual (healthy/infected).
+
+<span style="color:blue"> line 3: this line directs the program to view the state as a variable representing the number of days as a numeric variable/interpret the value as a number. 
+
+<span style="color:blue"> line 4: starting at this line, we are setting up a loop to generate a function that prints out 365 values of both infected and healthy individuals. This first line sets up the loop to run the test between 1 and the number of days, in this case 365.
+
+<span style="color:blue"> line 5: randomNum is a variable assignment to the runif function, which will generate a random number from 0 to 1. 
+
+<span style="color:blue"> line 6: If the numeric value of CURstate is equal to 0, then the next code will run:
+
+<span style="color:blue"> line 7: This line will check to see if the randomNum generated is less than 0.21. 
+
+<span style="color:blue"> line 8: If it is, then CURstate will be "1" 
+
+<span style="color:blue"> line 9: If not, 
+
+<span style="color:blue"> line 10: then CURstate will be "0"
+
+<span style="color:blue"> line 11: bracket
+
+<span style="color:blue"> line 12: If CURstate is not equal to 0, then the following function will be run:
+
+<span style="color:blue"> line 13: This line will check to see if the randomNum generated is less than 0.17.
+
+<span style="color:blue"> line 14: If it is, then CURstate will be "0"
+
+<span style="color:blue"> line 15: If not, 
+
+<span style="color:blue"> line 16: Then CURstate will be "1"
+
+<span style="color:blue"> line 17: bracket
+
+<span style="color:blue"> line 18: bracket
+
+<span style="color:blue"> line 19: This line takes the values for CURstate and assigns them to each i in state.
+
+<span style="color:blue"> line 20: bracket
+
+<span style="color:blue"> line 21: This line returns the values of state.
+
+<span style="color:blue"> ** The purpose of runif is to generate a random individual's probability between 0 and 1 to determine their status as healthy or infected. The use of 0.21 is to determine whether or not an individual is infected, since the probability of becoming infected the next day if you are healthy is 0.21.  ***
+
+</span>
+
+**3**
+```{r}
+days<-365
+CURstate<-1 # Let's represent the healthy state with 0 and the infected state with 1
+state<-numeric(days)
+for(i in 1:days){
+  randomNum<-runif(1)  # runif(1) randomly generates a number between 0 and 1   
+  if(CURstate==0){
+    if(randomNum < .21){
+      CURstate <- 1
+    }else{
+      CURstate <- 0
+    }
+  }else{
+    if(randomNum < .17){
+      CURstate<-0
+    }else{
+      CURstate<-1 
+    }
+  }
+  state[i]<-CURstate
+}
+state
+
+plot(1:365, state, xlab = "Number of Days", ylab = "State", type = "o")
+```
+<span style="color:blue"> The points are either 1 or 0. We can see how many points are at 0 or 1 in order to determine the days they spend while healthy or infected. The lines show the transition between being healthy and being infected. Generally speaking, there are even amounts of time spent being healthy and infected, and there are multiple transitions. </span>
+
+**4**
+```{r}
+days<-365
+CURstate<-0 #Let's represent the healthy state with 0 and the infected state with 1
+state<-numeric(days)
+for(i in 1:days){
+  randomNum<-runif(1)  #runif(1) randomly generates a number between 0 and 1   
+  if(CURstate==0){
+    if(randomNum < .21){
+      CURstate <- 1
+    }else{
+      CURstate <-0
+    }
+  }else{
+    if(randomNum < .17){
+      CURstate<-0
+    }else{
+      CURstate<-1 
+    }
+  }
+  state[i]<-CURstate
+}
+state
+
+plot(1:365, state, xlab = "days", ylab = "state", type = "o")
+```
+<span style="color:blue"> Differences shouldn't seen between the two graphs because the difference between 0.17 and 0.21 is not major. There is not a major difference between starting off healthy or infected. </span>
+
+**5**
+```{r}
+days<-365
+PopMat <- matrix(0,nrow = 4000,ncol = days)
+
+for(j in 1:4000){
+ CURstate<-1 #Let's represent the healthy state with 0 and the infected state with 1
+  state<-numeric(days)
+  for(i in 1:days){
+  randomNum<-runif(1)  #runif(1) randomly generates a number between 0 and 1   
+    if(CURstate==0){
+      if(randomNum<.21){
+      CURstate<-1
+      }else{
+        CURstate<-0
+     }
+    }else{
+      if(randomNum<.17){
+        CURstate<-0
+      }else{
+        CURstate<-1 
+      }
+    }
+    state[i]<-CURstate
+  }
+  PopMat[j,]<-state
+}
+```
+
+**6**
+```{r}
+sum(PopMat[,1])
+sum(PopMat[,365])
+
+#there were 3343 infected people on day 1 and 2150 by day 365.
+```
+
+**7**
+```{r}
+num_infected<-numeric(365)
+for (i in 1:365){
+  num_infected[i]<-sum(PopMat[,i])
+}
+```
+
+**8**
+```{r}
+plot(num_infected, xlab = "Days 1 - 365", ylab = "Number of Infected Individuals", main = "Total Number of People Infected Each Day", type = "o")
+```
+<span style="color:blue"> There is a decrease in the number of infected individuals. At the beginning, all individuals are infected, but after around 30 days, the number of infected people hits 2200. The number of people getting sick and recovering start to be at the same time. </span>
+
+**9**
+```{r}
+days<-365
+PopMat <- matrix(0, nrow = 4000, ncol = days)
+
+for(j in 1:4000){
+ CURstate<-0
+  state<-numeric(days)
+  for(i in 1:days){
+  randomNum<-runif(1)
+    if(CURstate==0){
+      if(randomNum < .21){
+      CURstate<-1
+      }else{
+        CURstate<-0
+     }
+    }else{
+      if(randomNum < .17){
+        CURstate<-0
+      }else{
+        CURstate<-1 
+      }
+    }
+    state[i]<-CURstate
+  }
+  PopMat[j,]<-state
+}
+
+num_infected <- numeric(365)
+for (i in 1:365){
+  num_infected[i] <- sum(PopMat[,i])
+}
+
+plot(num_infected, xlab = "Days 1 - 365", ylab = "Number of Infected Individuals", main = "Total Number of People Infected Each Day", type = "o")
+
+```
+<span style="color:blue"> There is an increase in the number of infected individuals. At the beginning, all individuals are at 0 infection, but after around 30 days, the number of infected people hits 2200. The number of people getting sick and recovering start to be at the same time.</span>
+
+**10**
+```{r}
+matrix(nrow = 1,ncol = 2,data = c(0,1))
+```
+
+**11**
+```{r}
+t<- matrix(nrow = 2, ncol = 2, data = c(.79, .17, .21, .83))
+t
+
+```
+
+**12**
+```{r}
+rowSums(t)
+```
+<span style="color:blue"> 1 is the sum because in Markov transition matrices, the total probability must add up to 1 (the total of the rows and the columns). This is because of the rules of probability which state that probabilities must sum to 1. </span>
+
+**13**
+```{r}
+healthyperson <-matrix(nrow = 1, ncol = 2, data = c(1,0))
+healthyperson%*%t
+```
+span style="color:blue"> The probability that they are sick on day 2 is 0.79, and the probability that they remain sick is 0.21. </span>
+
+**14**
+```{r}
+healthyperson%*%t%*%t
+healthyperson%*%t%*%t%*%t%*%t%*%t%*%t
+```
+span style="color:blue"> The probability that they are infected two days later is 0.3402, and the probability that they are healthy six days later is 0.478758. </span>
+
+**15**
+```{r}
+library(expm)
+healthyperson%*%(t%^%15)
+healthyperson%*%(t%^%150)
+```
+**16**
+```{r}
+infectedperson<-matrix(nrow = 1, ncol = 2, data = c(0,1))
+infectedperson%*%(t%^%15)
+infectedperson%*%(t%^%150)
+
+```
+span style="color:blue"> The individual that is initially healthy and infected have the same probability matrices, which is interesting. </span>
+
+**17**
+```{r}
+healthyperson%*%(t%^%15)
+
+healthyperson%*% (t%^%14)
+
+healthyperson%*%(t%^%13)
+
+healthyperson%*% (t%^%12)
+
+#Using our definition of the third decimal place, the system starts converging at 13 days because we see that there is a difference of in rounding at the third decimal place between 12 and 13 days (.449 and .448 for 12 and 13 days)
+infectedperson%*%(t%^%15)
+
+infectedperson%*%(t%^%14)
+
+infectedperson%*%(t%^%13)
+
+infectedperson%*%(t%^%12)
+```
+span style="color:blue"> It takes around 14 days for the distributions to converge, because of the third decimal place values. For instance here, we see the third decimal place in the twelfth and thirteenth day differ by 1 in the third decimal place due to the rounding. </span>
+
+**18**
+span style="color:blue"> There is a 55% chance that someone will be infected at any given point after 14 days after the infectious disease is introduced. </span>
+
+**19**
+span style="color:blue"> No, the initial probability distribution does not affect the equilibrium probability distribution. </span>
+
+**20**
+```{r}
+r <- matrix(nrow = 2, ncol = 2, data = c(0.5,0.17,0.5,0.83))
+healthyperson%*%(r%^%6)
+healthyperson%*% (r%^%5)
+healthyperson%*%(r%^%4)
+healthyperson%*%(r%^%3)
+infectedperson%*%(r%^%6)
+infectedperson%*%(r%^%5)
+infectedperson%*%(r%^%4)
+infectedperson%*%(r%^%3)
+
+
+```
+span style="color:blue"> When the mutated virus is introduced into the population, the probability distribution converges to around 5 days. The probability of an individual's infection is 0.75 and the probability of an individual being healthy is 0.25. </span>
+
+**21**
+```{r}
+channel<-matrix(nrow = 2, ncol = 2, data = c(0.77,0.27,0.23,0.73))
+
+state = matrix(c(0,1), nrow = 1, ncol = 2)
+state%*%(channel%^%1000)
+```
+span style="color:blue"> The closed channels will be 0.46, and the open channels will be 0.54 in the long run. </span>
+
+**22a**
+```{r}
+patient <- matrix(nrow=3, ncol=3, data=c(0.3, 0, 0, 0.5, 0.5, 0, 0.2, 0.5, 1.0))
+patient
+```
+
+**22b**
+<span style="color:blue"> The absorbing state is death, because an individual cannot come back to life. </span>
+
+**22c**
+<span style="color:blue"> After a very long time passes, the probability that a well person will eventually end up dead is 1. </span>
+
+**22d**
+```{r}
+
+well<- matrix(nrow = 1, ncol = 3, data = c(1,0,0))
+well%*%(patient%^%500)
+well%*%(patient%^%15)
+well%*%(patient%^%14)
+well%*%(patient%^%13)
+well%*%(patient%^%12)
+
+ill<- matrix(nrow = 1, ncol = 3, data = c(0,1,0))
+ill%*%(patient%^%12)
+ill%*%(patient%^%11)
+ill%*%(patient%^%10)
+ill%*%(patient%^%9)
+
+```
+<span style="color:blue"> This converges at around 12 days, because at 12 days, the transition matrix of a patient that starters healthy will converge to death, because after 12 days, there is a 100% chance they pass away. </span>
+
+```{r}
+#if you haven't run install.packages('tidyverse') and install.packages('magrittr'), do that in your console before running the following 2 lines
+
+# Include the packages
+library(tidyverse)
+library(magrittr)
+```
+
+```{r}
+# GILLESPIE ALGORITHM SIMULATOR FOR USE IN 24 AND 25 - NO NEED TO COPY-PASTE
+
+gillespie <- function(counts, t_max, contact, recovery, birth){
+  # gillespie() takes in the variables explained below and runs gillespie simulation of a Continuous-Time Markov Chain
+  
+  # counts: The initial number of people within each group (SIR)
+  # t_max: The maximum time we want to simulate to
+  # contact: Rate at which people come into contact
+  # recovery: Rate at which people recover from illness
+  # birth: Rate at which new births enter the population (equivalent to people dying too)
+
+  # Should only run if we have at least 1 infection
+  if (counts[2] == 0) {
+    # No infections in this population, no point of running
+    stop("Must initialize with at least one infected person in I (compartment 2)")
+    geterrmessage()
+    return()
+  }
+
+  # Initial time
+  t <- 0.0
+  
+  # Data matrix storing time and counts within each compartment
+  data_mat <- matrix(0, nrow = 1, ncol = 4)
+  data_mat[1, ] <- c(t, counts)
+  
+  while (t < t_max) {
+    # SIR case, only care about infected in compartment 3 
+    if (counts[2] == 0) {
+        break
+    }
+
+    # Calculate propensities of each reaction (S -> I, I -> R, I -> S, R -> S)
+    p <- numeric(4)
+    # S -> I Reaction Propensity: (Number Susceptible)(Number Infected)(Contact Rate)/(Total People)
+    p[1] <- counts[1] * counts[2] * contact / sum(counts)
+    # I -> R Reaction Propensity: (Number Infected)(Recovery Rate)
+    p[2] <- counts[2] * recovery
+    # I -> S Reaction Propensity: (Number Infected)(Birth/Death Rate)
+    p[3] <- counts[2] * birth
+    # R -> S Reaction Propensity: (Number Recovered)(Birth/Death Rate)
+    p[4] <- counts[3] * birth
+    
+    # Generate next time step
+    dt <- rexp(1, sum(p))
+    t <- t + dt
+    
+    # Generate next reaction and update counts
+    reac <- runif(1)
+    if (reac < p[1]/sum(p)) {
+      counts[1] <- counts[1] - 1
+      counts[2] <- counts[2] + 1
+    } else if (reac < sum(p[1:2])/sum(p)) {
+      counts[2] <- counts[2] - 1
+      counts[3] <- counts[3] + 1
+    } else if (reac < sum(p[1:3])/sum(p)) {
+      counts[2] <- counts[2] - 1
+      counts[1] <- counts[1] + 1
+    } else {
+      counts[3] <- counts[3] - 1
+      counts[1] <- counts[1] + 1
+    }
+    
+    # Add time and counts to vector of vectors data
+    data_mat %<>% rbind(c(t, counts))
+  }
+  
+  # Format data in tibble
+  colnames(data_mat) <- c("Time", "S", "I", "R")
+  data_tib <- as_tibble(data_mat)
+  
+  # Return as nice ggplot
+  ggplot(data = data_tib) + geom_path(mapping = aes(x = Time, y = S, color = 'a')) +
+    geom_path(mapping = aes(x = Time, y = I, color = 'b')) +
+    geom_path(mapping = aes(x = Time, y = R, color = 'c')) +
+    scale_color_manual(guide = 'legend', values = c('a' = 'red', 'b' = 'blue', 'c' = 'black'), labels = c('S', 'I', 'R')) +
+    labs(x = "Time (arbitrary units)", y = "Number of People", title = "Simple SIR Test", colour = "Compartment")
+}
+```
+
+**23**
+```{r}
+gillespie(c(900,100,0), 200, 0.85, 0.15, 0.4)
+```
+<span style="color:blue"> There are a large number of healthy people, whose number begins to tend around 620-650. The number of infected people begins at around 100 and rises to 250. The number of people who recovered start at 0 and rise quickly, then tend to 125. </span>
+
+**24**
+```{r}
+gillespie(c(900,100,0), 200, 0.55, 0.15, 0.4)
+```
+<span style="color:blue"> For I and R individuals, we see a convergence to 0. As for S individuals, their convergence is to 1000. Due to the low recovery rate, the infected individuals have a high rate of fatality and low chances of recovery. This means that the people contracting the disease will increase to the point where the virus will stop spreading. This is expected due to the low recovery rate and high fatality rate.</span>

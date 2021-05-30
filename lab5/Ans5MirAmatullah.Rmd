@@ -1,0 +1,204 @@
+
+# Lab5 Answers File
+--
+Please write your answers into the space below the questions. Knit this file when you are done to check that all code runs. Remember to rename the file to contain *your actual* Last and First name and **submit both the Rmd and Html file to canvas**.
+--
+#### YOUR NAME HERE
+
+
+**1(a)**
+```{r}
+findStopCodons <- function(seq){
+  stopcodons <-numeric(0)
+  k <- 1
+  for(i in 1:(length(seq)-2)){ 
+      if((seq[i]=="t" && seq[i+1]=="a" && seq[i+2]=="a") || 
+         (seq[i]=="t" && seq[i+1]=="g" && seq[i+2]=="a") || 
+         (seq[i]=="t" && seq[i+1]=="a" && seq[i+2]=="g")){
+        stopcodons[k] <- i
+        k <- k+1
+      } 
+  }
+  return(stopcodons)
+}
+
+seq<-c("g","t", "a", "a", "t", "g", "t", "a","g","t", "g", "a","t")
+findStopCodons(seq)
+```
+
+**1(b) **
+<span style="color:blue"> If we iterated over 1:length(seq) instead of (length(seq)-2), the code would run beyond the bounds of the sequence. It would look for stop codons beyond the length of the sequence. If we are looking at the last value, i+1 and i+2 are beyond the bounds of the sequence, so length(seq)-2 factors this in. </span>
+
+
+**1(c)**
+```{r}
+
+findStartCodons <- function(seq){
+  startcodons <-numeric(0)
+  k <- 1
+  for(i in 1:(length(seq)-5)){ 
+      if(seq[i]=="a" && seq[i+1]=="t" && seq[i+2]=="g"){
+        startcodons[k] <- i
+        k <- k+1
+      } 
+  }
+  return(startcodons)
+}
+seq<-c("t", "a", "a","a", "t", "g","a","t","g", "a", "a", "a")
+findStartCodons(seq)
+```
+**1(d) **
+<span style="color:blue"> Three more than 2 (5) is needed because we dont want to end on the start codon. We want to be able to fit at least one codon after the start. If it is the last, then 3 more nucleotide spaces after the last start codon would be needed, thus 5. </span>
+
+
+**2.**
+```{r}
+date <- paste("May 25", "2021.", sep = ", ")
+paste("Today is", date)
+```
+
+**3.**
+<span style="color:blue"> R runs through all the numbers between 19 and 75 and returns True if 91, 17, 81, 33, or 65 is among the numbers. If they are not, then False is outputted for every number that is not one from the vector 91, 17, 81, 33, 65. </span>
+```{r}
+c <- 19:75
+d <- c(91, 17, 81, 33, 65)
+
+c%in%d
+```
+
+**4.**
+```{r}
+"abc"%in%letters
+```
+
+**5.**
+<span style="color:blue"> This code will go through each number 1 through 30 and then once the number that is being iterated on is 15, the code will break the loop. </span>
+```{r}
+for(i in 1:30){
+  if(i==15){
+    break
+  }
+  print(i)
+}
+```
+
+**6.**
+```{r}
+findORF <- function(seq){ 
+  startcodon <- findStartCodons(seq)
+  stopcodon <- findStopCodons(seq)
+  usedStop <- numeric(0)
+  ORFs <- character(0) 
+  k <- 1
+  for(i in startcodon){
+    for(j in stopcodon){ 
+      if((j-i)%%3==0 && j>i){
+        if(j%in%usedStop){ 
+          break 
+        }else if((j-i)<297){
+          break
+        }else{ 
+          ORFs[k]<-paste(i, "to", j+2)
+          usedStop[k] <- j
+          k <- k + 1 
+          break 
+        }
+      }
+    }
+  }
+  return(ORFs)
+} 
+```
+
+**7.**
+```{r}
+library(seqinr)
+zika <- read.fasta("zika.fasta")[[1]]
+
+findORF(zika)
+
+```
+<span style="color:blue"> There is one ORF in the zika genome. </span>
+
+**8.**
+<span style="color:blue"> The amount of the ORFs is surprising because there is only 1 open reading frames whereas in humans there are many more. Within the Zika genome the genome is translated in a polyprotein that is 3,419 aa long. A protein that is very large is generated and is reduced to several proteins. </span>
+
+
+**9.**
+```{r}
+dengue <- read.fasta("dengue.fasta.txt")[[1]]
+
+findORF(dengue)
+```
+<span style="color:blue">There are two ORFs in the dengue genome. </span>
+
+
+```{r}
+x <- rnorm(1250)
+y <- runif(1250)
+plot(x,y)
+cor(x,y)
+```
+
+**10.**
+<span style="color:blue"> The correlation coefficient for the graph is so small because the correlation between the two samples is weak. Correlation coefficients with a value of 0.7 or higher tend to correlations that are generally stronger. </span>
+
+**11.** 
+```{r}
+correl <- function(x){
+a <- runif(x)
+b <- runif(x)
+return(cor(a,b))
+}
+```
+
+```{r}
+numberOfNeurons <- c(948000, 3394000, 9583300, 28683000, 54995650, 96800000, 150026300)
+memoryInGB <- c(.8, 6.7, 21.1, 159, 310, 890, 1951)
+NeuroComputation <- data.frame(numberOfNeurons, memoryInGB)
+```
+
+**12.**
+```{r}
+
+plot(NeuroComputation,main="Amount of Memory By Network Size",xlab="Memory (GB)",ylab="Neurons", type = "o")
+
+```
+<span style="color:blue"> The relationship between the two variables appears to be exponential or quadratic. </span>
+
+**13.**
+```{r}
+cor(numberOfNeurons, memoryInGB)
+```
+<span style="color:blue"> The correlation coefficient outputted is 0.9727733, which is a great coefficient and demonstrates a high correlation between the number of neurons and memory in GB.  </span>
+
+**14.**
+```{r}
+LinFit <- lm(memoryInGB ~ numberOfNeurons, data = NeuroComputation)
+
+plot(numberOfNeurons, memoryInGB)
+abline(LinFit, col="red")
+summary(LinFit)
+```
+
+**15.**
+<span style="color:blue"> The coefficient of determination shows how well the regression model fits the data. In this context, the coefficient of determination (0.9463) demonstrates that 94.63% of the data match the regression model generated. </span>
+
+**16.**
+```{r}
+QuadFit <- lm(memoryInGB ~ 0 + numberOfNeurons + I(numberOfNeurons^2), data=NeuroComputation)
+
+summary(QuadFit)
+
+```
+<span style="color:blue"> The R^2 value for the graph is strong, at 0.9995. </span>
+
+**17.**
+```{r}
+
+myQuadFit <- lm(memoryInGB ~ 0 + numberOfNeurons + I(numberOfNeurons^2), data=NeuroComputation) #the fit
+ypredict <- predict(myQuadFit,list(memoryInGB)) #use the fit to create a vector of "predicted" y values
+plot(numberOfNeurons, memoryInGB) #plot the "actual" data points
+lines(numberOfNeurons, ypredict, col="red")
+```
+<span style="color:blue"> The relationship between the size of neuronal networks and the amount of computer memory required to simulate them is a quadratic relationship. By using the predict feature and the quadratic fit, we are able to simulate a graph that is extremely similar to the original data. </span>

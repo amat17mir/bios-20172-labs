@@ -1,0 +1,409 @@
+---
+title: 'Lab 5: Open Reading Frames, Correlation & Regression'
+output: html_document
+---
+### <span style="color:green">This assignment is due at 11:59 p.m. (CDT) the day after your lab.\span
+
+<span style="color:red">Please submit your lab report written in the "Ans5LastnameFirstname.Rmd" file **(please replace Lastname and Firstname with your last and first names, respectively; please do not add spaces, hyphens, or underscores)** and knitting the report to HTML. Upload both the .Rmd and HTML files to the appropriate Lab 5 submission link on Canvas. </span>
+
+## The Central Dogma of Molecular Biology
+
+Our genes contain the blueprint for our cells and our bodies. In today's world, this is common knowledge. But what may be less obvious is exactly *how* those sequences of DNA exert their effects in the physical, biological world. The short story is that the plan contained in DNA is put into action by proteins, but this idea brings us to a fundamental teaching in modern biology: **the central dogma of molecular biology**. As originally stated in Francis Crick's (of Watson and Crick fame) 1958 paper "On Protein Synthesis", the central dogma *"...states that once 'information' has passed into protein it cannot get out again. In more detail, the transfer of information from nucleic acid to nucleic acid, or from nucleic acid to protein may be possible, but transfer from protein to protein, or from protein to nucleic acid is impossible. Information means here the precise determination of sequence, either of bases in the nucleic acid or of amino acid residues in the protein."*
+
+A consequence of this statement--with the benefit of some additional information from experimental biology since 1958--is the following: **The flow of information during protein synthesis is *from DNA to RNA to Protein***. We've touched upon DNA and proteins, but what is this RNA intermediary? The first step on the path from DNA to protein is for the double-stranded DNA to be **transcribed** to form a single-stranded mRNA (messenger RNA) molecule. A big benefit of this transcription step is that *many mRNA molecules can be repeatedly transcribed from DNA*, allowing for **amplification**. 
+
+To illustrate the benefits of amplification, imagine if every high schooler in the United States had to be taught biology from a *single physical copy* of a textbook. Learning anything would be practically impossible! Similarly, if proteins were created directly from DNA, then the resulting traffic jam in the nuclei of our cells would make cellular processes slow to a crawl. Instead, by first transcribing to an mRNA intermediary, cells are able to quickly manufacture key proteins in large quantities. We are able to make photocopies of that precious, precious textbook. 
+
+However, we encounter a slight problem, because there are four nucleic acids used in our genetic code (ATCG for DNA, AUCG for RNA), but there are 20 (sometimes more!) amino acids used in the construction of our proteins. A one-to-one translation would be clearly impossible. Instead, to translate from mRNA to protein, **three nucleotides code for one amino acid**. Strings of these **triplet codons** form the **protein-coding regions** of our genes. A table of codons follows:
+
+![](./Images/image1.png)
+
+So there is the mRNA code to protein code translation problem solved. But how do we know where the protein-coding regions begin? Another problem. There are many different markers that tell us where protein-coding regions reside in our genomes, but a basic and important one that helps us to predict the locations is the concept of the **open reading frame** or **ORF**. 
+
+### Open Reading Frames
+
+A large number of protein sequences start with Methionine. From the table, we can see that the codon for Methionine is AUG (ATG in DNA code), and is also labeled as "Start". But Methionine is also an important amino acid *within* protein structures. How do we then determine where a protein begins? The truth is that, based on the genetic code alone, this is a difficult task. But we can predict where protein-coding regions begin and end because all protein sequences also end in one of three codons: UAA, UAG, or UGA (TAA, TAG, and TGA in DNA code). These are the **stop codons**. They do not normally code for amino acids but rather serve to signify that translation of the protein will terminate at that position. ***If a stop codon is encountered by protein-forming machinery, then translation *will stop**.
+
+<span style="color:blue">
+So a structure for an open reading frame begins to appear: a start codon, some number of intervening codons that code for the amino acids of the protein, and a stop codon to terminate the sequence. All of these components are formed from three-nucleotide codons, so a key property of these frames is that **their length in nucleotides is evenly divisible by 3**.\span
+
+Another problem emerges. There are three different "frames" possible for a given direction. To explain:
+
+Consider the sequence "GTCATGAT". If we start from the first nucleotide "G" and start assigning codons, then we get the following: **(frame 1) GTC ATG, or Valine Methionine**. Let's start at the second nucleotide: **(frame 2) TCA TGA, or Serine STOP**. And if we start at nucleotide 3: **(frame 3) CAT GAT, or Histidine Aspartate**. Note that if we start at the fourth nucleotide, we are ***in reading frame 1 once again***: ATG. All of this also applies to the complementary strand, **so for a double-stranded genome, there are six possible reading frames**.
+
+From this, we can see that if we want our open readng frames to begin with the start codon (ATG) and end with one of the stop codons (TAA, TAG, or TGA), then we will need our start and stop codons to be **in the same reading frame**. This means that the length spanned by our open reading frame (first nucleotide of start codon to final nucleotide of our stop codon) must be evenly **divisible by 3**.
+
+The final condition is that our ORFs **must be of some minimum length with no intervening in-frame stop codons.** This means that our ORFs must code for a certain number of amino acids so that the product will be a polypeptide of significant length that fold to a structure properly. **If there is a stop codon in-frame between our chosen start and stop codons, then that ORF would terminate by definition at that intervening stop codon, so our putative ORF is not valid.**
+
+To summarize, our general strategy is delineated below:
+
+1) Beginning at the first nucleotide in the sequence (i.e. in reading frame 1), move along one codon (3 nucleotides) at a time until you encounter a start codon.
+    a) Once you have found a start codon, begin building your potential ORF by checking subsequent codons to see whether a stop codon follows. Make sure to keep track of how many codons are in this potential ORF.
+        i) If you find a stop codon, then check to see if your potential ORF meets the minimum length requirement. If it does, then store the nucleotide range from the first nucleotide of the start codon to the final nucleotide of the stop codon.
+        ii) Resume your search for start codons at the codon after this stop codon.
+2) Repeat this search for reading frames 2 and 3 (i.e. beginning at nucleotides 2 and 3).
+
+![](./Images/image2.png)
+
+As a first step towards our ORF analysis, let's start by writing two functions, `findStartCodons()` and `findStopCodons()`. Given a DNA sequence, these functions will find the positions of the first nucleotide of each start and stop codon, respectively, regardless of the reading frame (1, 2, or 3). **Make sure to delete the `eval=F` in the code chunks below so that they run when you knit.** 
+
+<span style="color:green">
+
+<span style="color:green">
+**1(a)** Write a function that takes in a gene sequence and stores the indices of the first nucleotide of the stop codon in the vector `stopcodons`, and returns this vector at the end. A pseudocode is given below to help guide you, but you are free to write in your own style. Remember that there are three different stop codons! *Hint: some ways of doing this include using the OR statement (`||`), or multiple if statements.*
+
+```{r eval= F}
+# This function receives a DNA sequence as input and outputs a vector with the position of all stop codons.
+
+findStopCodons <- function(seq){
+  stopcodons <-numeric(0)#This will initiate an empty vector. You can index into this vector at any location to store a new value. Ie to store a value of 100 in the first position of this vector, you would index into the first location in stopcodons and set it equal to 100.
+  k <- 1
+  for(i in 1:(length(seq)-2)){ 
+        
+  }
+  return(stopcodons)
+}
+seq<-c("g","t", "a", "a", "t", "g", "t", "a","g","t", "g", "a","t")
+findStopCodons(seq)
+```
+
+<span style="color:green">
+**1(b)** What would happen if we iterated over `1:length(seq)` instead of `(length(seq)-2)`; **try this on your own**?  \span
+
+<span style="color:green">
+**1(c)** Write a function that takes in a gene sequence and stores the indices of the first nucleotide of the start codon in the vector `startcodons`, and returns this vector at the end. Note that the DNA sequences we will use will contain lower case characters, i.e. "a", "t", "g", "c". The last 2 lines in the chunk will test your `findStartCodons()` function on a sample sequence called `seq`. A pseudocode is given below to help guide you, but you are free to write in your own style. *Hint: use a nested if statement inside a for loop to iterate over the entire sequence and evaluate whether the letters are "a", "t", "g" using truth statements (`&&` and `==`). USE LOWERCASE LETTERS* \span
+
+```{r eval=F}
+# This function receives a gene sequence as input and outputs a vector with the index of all start codons.
+
+findStartCodons <- function(seq){
+  startcodons <- numeric(0) #This will initiate an empty vector. You can index into this vector at any location to store a new value. Ie to store a value of 100 in the first position of this vector, you would index into the first location in startcodons and set it equal to 100.
+  k <- 1 #use k to index the 'startcodons' vector (startcodons[k]) as you store in it the index of each start codon you find in 'seq'. Remember to increase k each time (k<-k+1). 
+  for(i in 1:(length(seq)-5)){
+    
+  
+  }
+  return(startcodons)
+}
+seq<-c("t", "a", "a","a", "t", "g","a","t","g", "a", "a", "a")
+findStartCodons(seq)
+```
+
+<span style="color:green">
+**1(d)** In 1(c), our for loop iterated over `1:length(seq)-5`, whereas in 1(a), it iterated over `1:length(seq)-2`. Explain the logic behind this difference. (Hint to understand `1:length(seq)-5` in 1a: think about where the start and stop codons must fall in order for them to create an open reading frame.) \span
+
+
+
+#### Pasting Strings
+
+To help us conduct our ORF analysis, we are going to learn some more important functions in R. Let's start with `paste()`. 
+
+The `paste()` function is a built-in function in R that is used to **concatenate strings**. This is to say that `paste()` takes separate strings such as `"cat"` and `"dog"` and *pastes them* together into a single string like `"cat dog"`. It's like `c()` for strings. 
+
+```{r}
+pasted <- paste("Russia", "Ukraine")
+pasted
+```
+
+`paste()` takes two additional arguments called `sep` and `collapse`. `sep` is used when you want to paste together two separate strings, as we did in the example above. It determines what character is used to paste the strings together; by default, the character is a space `" "`. `paste0()` is a variant of `paste()` where `sep = ""` (the empty string)
+
+```{r}
+paste("Italy", "SanMarino", sep = "!")
+paste("Italy", "SanMarino")
+```
+
+If we want to paste together strings that are contained in a *character vector*, then we need to provide the `collapse` argument:
+
+```{r}
+paste(c("Spain", "Portugal"))
+paste(c("Spain", "Portugal"), collapse = " ")
+```
+
+<span style="color:green">
+**2.** Using the variations of the `paste()` function, write a command that will generate a gramatically correct sentence of your choosing, with appropriate spacing and punctuation. You can use more than one command to put the sentence together, as well as different aspects of `paste()`, but at the end of the code chunk, there should be one command that outputs the full, grammatically correct sentence. \span
+
+#### Value Matching
+
+Let's also look at another operation: `%in%`. Value matching returns a logical vector that indicates whether the elements in argument `x` has a match for another argument `y`. Essentially, it takes in each element of `x`, on the left side of `%in%`, and determines whether it can find the same thing inside the argument `y`, on the right side of `%in%`. Which side of `%in%` the argument is placed is very important. For example, the two commands below are very different things.
+
+```{r}
+c(1,3,5,9) %in% 5:15 #take each element of the left side to find a match on the right side. Hence it returns a logical vector with a length of 4.
+```
+
+```{r}
+5:15 %in% c(1,3,5,7,9)
+```
+
+<span style="color:green">
+**3.** Explain in detail the difference between the outputs of the code below. How is R computing the two lines?\span
+
+```{r}
+c <- 19:75
+d <- c(91, 17, 81, 33, 65)
+
+c%in%d
+d%in%c
+```
+
+<span style="color:green">
+**4.** Use the %in% operator to write ONE line of code to check if the string "abc" occurs in the built-in vector named letters. Your output should be a single TRUE or FALSE. \span
+
+
+#### Break Function
+
+The last new concept we will learn before diving into ORF analysis is `break`. `break` statements are used inside a loop to basically break out of it. It does not return a value; it stops the iterations and transfers the control of the loop to outside of the loop. In a nested loop, the statement exits from the inner-most loop to the first statement outside. 
+
+![](./Images/image3.jpg)
+
+<span style="color:green">
+**5.** Explain the for loop and its output below. How do you think the break function worked? \span
+
+```{r}
+for(i in 1:30){
+  if(i==15){
+    break
+  }
+  print(i)
+}
+```
+
+Now we have just about enough to start putting together a function that will find ORFs in a genome.
+
+<span style="color:green">
+**6.** Now we are going to write a function to find possible open reading frames (ORFs) in a given sequence. Let us define those to be a substring with the following conditions: 
+
+- Starts with the start codon "ATG"
+- Ends with one of the stop codons
+- Substring length is divisible by 3 so it can be a coding sequence (start and stop codons are in the same reading frame) 
+- Minimum length of 100 amino acids (or 300 nucleotides, *end to end*) in accordance with the characteristics of a typical protein  
+
+<span style="color:green"> The input should be a nucleotide sequence, and the output should be a character vector containing strings in the following format (see `?paste`): `"<first base of start> to <last base of stop>"` (i.e. `"409 to 1273"`). A pseudocode sketch of a possible code implementation is given below, but you are free to come up with your own original code, as long as it works. If you are using the given code, don't overthink it: follow the comments provided on each line and the conditions given above. (Note: incorporate your `findStartCodons()` and `findStopCodons()` functions into your ORF function.) \span
+
+```{r eval=F}
+findORF <- function(seq){ 
+  startcodon <- #store all the indices of the start codons of 'seq' to analyze in this function, using findStartCodons()
+  stopcodon <- #store all the indices of stop codons of 'seq' to analyze in this function, using findStopCodons()
+  usedStop <- numeric(0) #after a stop codon is found in an ORF, we will store its index here
+  ORFs <- character(0) #we will store all ORFs here in the format "x to y", where x is the index of the first nucleotide of the start codon, and y is the index of the last nucleotide of the stop codon
+  k <- 1 #similar purpose as earlier, used to index and fill in our empty vectors 
+  for(){ #for every start codon (gotten from the variable `startcodon`)
+    for(){ #for every stop codon (gotten from the variable `stopcodon`)
+      if(){ #two conditions: if the distance between the start and stop codons are in the same reading frame (of 3) AND the stop codon comes after the start codon
+        if(){ #if the stop codon has already been used (i.e. if it's in our 'usedStop' vector), then break
+          break #go back to outside of this for loop (basically disregard and move onto the next stop codon)
+        }else if(){ #or, if the distance between the start and stop codon is too short, then also break
+          break
+        }else{ #if it reaches this point, the stop codon has not been used and the distance between them is sufficient
+            #store the position of the first nucleotide of the start codon and the last nucleotide of the stop codon in the right format (ex. "41 to 1423", as a string) into the empty vector 'ORFs'
+            #store the stop codon in the `usedStop` vector so we don't use it again
+          k <- k + 1 #increase k so that the next ORF we find is stored in the next place of the empty vectors 
+          break 
+        }
+      }
+    }
+  }
+  return(ORFs)
+} 
+```
+
+<span style="color:green">
+**7.** Load the Zika virus genome, stored in `zika.fasta`, into R using `read.fasta()` from `library(seqinr)` (see Lab 3 for a refresher on syntax). Use your `findORF()` function to calculate the number of ORFs in the zika virus genome. 
+
+<span style="color:green">
+**8.** Do you find the number or length of the ORFs in the Zika genome surprising? Do some research into how the Zika genome is expressed (you may find this page [http://viralzone.expasy.org/6756?outline=all_by_species] useful). With this information in mind, justify the number of ORFs you found in question 8. (Note: pay attention to the biological mechanism of the genome expression.) \span
+
+<span style="color:green">
+**9.** Load the dengue genome, stored in `dengue.fasta.txt`. Use your `findORF()` function to calculate the number of possible ORFs in the dengue genome. 
+
+
+### Correlation
+
+The data that we get from experiments is almost never as cut and dry as the examples that we work with in labs. This is because first, datasets usually are much bigger. Second, if there is a relationship among variables, it is far less than obvious. In these cases, exploratory data analysis is often used. For example:
+
+```{r}
+x <- runif(750)
+y <- runif(750)
+plot(x,y,main="Plot 1: random uniform samples",xlab="sample 1 (unif)",ylab="sample 2 (unif)")
+```
+
+Based on the plot, it doesn't look like there is much of a relationship, but is this truly the case? To answer this question, we can look at the correlation coefficient, one of the simplest tools in exploratory data analysis.
+
+<span style="color:blue">
+Linear (Pearson) correlation coefficient measures the strength and direction of the linear association between two numerical variables. This coefficient varies in value between -1 to 1, where 1 represents a perfect positive correlation, -1 represents a perfect negative correlation, and 0 tells us that the two variables are essentially unrelated. 
+
+```{r}
+cor(x,y) #gives the correlation coefficient between x and y
+```
+
+Indeed the value is very small, suggesting that knowing `x` doesn't tell us much about `y`. Be mindful that the **Pearson correlation coefficient works well only with linear relationships.** The $R^2$ value is the correlation coefficient **squared** and is used to measure the quality of the fitted line to the data.
+
+Now, let's run a sample simulation:
+```{r}
+x <- rnorm(1250)
+y <- runif(1250)
+plot(x,y,main="Plot 2: random normal and uniform samples",xlab="sample 1 (norm)",ylab="sample 2 (unif)")
+cor(x,y)
+```
+
+Note that the numbers used here are random, so your own value of `cor()` and the appearance of your plot will likely be different than above.
+
+<span style="color:green">
+**10.**	Why do you think the correlation coefficient is so small for the plot above? Explain briefly. </span>
+
+<span style="color:green">
+**11.**	Write a function that takes some variable `x` as its input. Have the function output the correlation coefficient between two different samples of size `x`, both drawn from a uniform distribution *Hint: use`runif()` and `cor()`*. </span>
+
+Try running the function a few times for different values of `x`. You'll see that regardless of the sample size, the correlation coefficient is very small, close to 0. The same thing will happen if we use `rnorm()`. <span style="color:red"> We can thus conclude that two random samples, regardless of the population they were drawn from, will not demonstrate a clear linear relationship. \span
+
+### Data-frames & Regression
+
+As a part of an investigation into the nature of epilepsy, researchers collected data on neuronal networks. Let's create a vector containing the number of neurons in several neuronal networks: 
+
+```{r}
+numberOfNeurons <- c(948000, 3394000, 9583300, 28683000, 54995650, 96800000, 150026300)
+```
+
+The supercomputer cluster Midway at the University of Chicago was used to analyze this data. Simulating these neuronal networks often requires a substantial amount of computer memory. The following vector contains the amount of RAM in gigabytes needed to run those jobs:
+
+```{r}
+memoryInGB <- c(0.8, 6.7, 21.1, 159, 310, 890, 1951)
+```
+
+This type of data is very common in bioinformatics and computational modeling. When developing algorithms, it is very important to understand how much time and memory calculations take as they grow in size. 
+
+With these vectors, We can now easily create a dataframe:
+
+```{r}
+NeuroComputation <- data.frame(numberOfNeurons, memoryInGB)
+NeuroComputation
+```
+
+We can see some trend between the variables. The exact nature of the relationship, however, remains less clear.
+
+Remember that dataframes can be sliced in different ways. We could use either  `NeuroComputation[,1]` or `NeuroComputation$numberOfNeurons` to access the first column:
+
+```{r}
+NeuroComputation[,1] #indexing
+NeuroComputation$numberOfNeurons #access column by $colname
+```
+
+Similarily, to get the second column: 
+
+```{r}
+NeuroComputation[,2] #indexing
+NeuroComputation$memoryInGB #access column by $colname
+```
+
+<span style="color:green">
+**12.** Plot the amount of memory used as a function of the size of the network. Be sure to provide appropriate axis labels. Examine the plot, and describe the relationship (e.g. linear, exponential, cubic, quadratic, etc) between the two variables. \span
+
+<span style="color:green">
+**13.** Calculate the correlation coefficient between the variables, and write a sentence describing the relationship using the value you found. \span
+
+While these data points themselves are helpful, we need to perform more extrapolation for them to be useful in the "real-world". That is, we want a continuous model so that for any neuron of size `X`, we can predict the required amount of memory or computing time `Y`.
+
+The simplest way to do this is to find the line of best fit. In R, this can be accomplished with `lm()`, which creates a "linear model":
+
+```{r eval = FALSE}
+myfit <- lm(Y ~ X, dataframe)
+
+```
+
+In the pseudo-code above, `dataframe` is the name of your data, `X`  is the explanatory variable, and `Y` is the response variable. For example:
+
+```{r}
+LinFit <- lm(memoryInGB ~ numberOfNeurons, data = NeuroComputation)
+```
+
+This command makes a linear fit of memory as a function network size, using data from `NeuroComputation`. We then assign the results to the variable `LinFit`. Note the `~` is used similarly to the boxplot command. Simply put, we want to plot the amount of memory used as a function of (`~`) the size of the neuronal network.
+
+We can use `summary()` to learn more about this fit in R:
+
+```{r}
+summary(LinFit)
+```
+
+Under the "Estimate" column, the "(Intercept)" value *-1.391e+02* represents the y-intercept of the line, and the "numberOfNeurons"  value *1.252e-05* represents the slope of the line. R will use these values to calculate the fit line, which we can check graphically.
+
+First plot the actual data points using `plot()`. We will add the linear fit in the next line with `abline()`. Keep these two commands in the same code chunk:
+
+```{r eval = FALSE}
+#example pseudocode using variables X,Y
+myfit <- lm(Y ~ X)
+
+plot(X,Y)
+abline(myfit, col="red")
+```
+
+<span style="color:green">
+**14.** Plot `memoryInGB` as a function of `numberOfNeurons`. Add the fit line as explained above. </span>
+
+The $R^2$ value can also be found in the output of `summary()`. It gives two R-squared values; we will look only at the "Multiple R-squared" one. <span style="color:blue"> **The $R^2$ measures the fraction of variance in $Y$ explained by $X$ in the regression line, where a value closer to 1 means a better linear fit.** In this case the $R^2$ is 0.9463 and the p-value is 0.0002315 **In regression with only one explanatory variable the R^2 values is the same as the square of the correlation coefficient (r).** \span
+
+
+<span style="color:green">
+**15.** Within the context of this data, explain what this $R^2$ value means. \span
+
+
+The linear fit doesn't seem too bad from the "metrics" standpoint, until you look at the large residuals and at the plot. <span style="color:blue">**The residual, also found in the output of `summary()`, is the difference between the value predicted by the fit and the actual value.**\span 
+
+![](./residuals.jpg)
+<br>
+**Knowing this, we would like for the residuals to be as close to zero as possible**. For example, the residual value of 133.34 in the above summary is the difference between the actual data at index 1 and its corresponding predicted value on the fitted line. \span
+
+<span style="color:red">
+As you can see, the residuals are very large for `LinFit`, meaning the values predicted by the linear model is far from the actual data. We can thus conclude that the linear model does not fit the data very well. \span
+
+This is a lesson to be careful about $R^2$ and p-values to make fitting decisions, especially with a small number of data points as we have here. 
+We can find the actual predicted values using `predict()`:
+
+```{r}
+#amount of memory per network size as predicted by the linear model
+predict(LinFit, list(numberOfNeurons=948000)) 
+```
+
+Since 940600 was in our original data set, we can find the actual amount of memory corresponding to 940600 neurons with the following command:
+
+```{r}
+#actual amount of memory per network size
+NeuroComputation$memoryInGB[1]
+```
+
+<span style="color:red">
+The output given by the `predict()` function is clearly very far from the actual value, resulting in large residuals, making the linear model not a good fit for the data despite the large $R^2$ value and small p-value. \span
+
+Let's try a different model. Run the following command:
+
+```{r}
+QuadFit <- lm(memoryInGB ~ 0 + numberOfNeurons + I(numberOfNeurons^2), data=NeuroComputation)
+```
+
+<span style="color:green">
+**16.**	Use the `summary()` command on `QuadFit` to predict how well this new quadratic model might fit the data, compared to the linear model. \span
+
+We can use the `predict()` function again to see how well the quadratic model predicts values of memory per network size. Below are a few comparisons, with the predicted and actual values pasted for better readability:
+
+```{r}
+#outputs are predicted vs actual values
+paste(predict(QuadFit, list(numberOfNeurons=948000)),NeuroComputation$memoryInGB[1], sep=" vs ")
+paste(predict(QuadFit, list(numberOfNeurons=9583300)),NeuroComputation$memoryInGB[3], sep=" vs ")
+paste(predict(QuadFit, list(numberOfNeurons=96800000)),NeuroComputation$memoryInGB[6], sep=" vs ")
+```
+
+<span style="color:red">
+We can see that the values predicted by `QuadFit` are a lot closer to the actual values, in contrast to the linear model. \span
+
+Now let's try to visualize this. The `lines()` function in R is similar to `abline()` from earlier in that it adds information to an already existing plot window, except while `abline()` can only create straight lines, `lines()` can have varying shapes depending on the input. Both should come after a `plot()` command that creates the main graph. 
+
+The input of the `lines()` function is the same as the input for `plot()`, except you don't need to add extra parameters. Since we want to visualize how the predicted values from our model match the actual values, we could use our fit to define a new vector `ypredict` (see how to do this below), and then add the command `lines(x, ypredict, col="red")`. The following pseudo-code shows what this whole process would look like:
+
+```{r eval=FALSE}
+myfit <- lm(y ~ x) #the fit
+ypredict <- predict(myfit,list(x)) #use the fit to create a vector of "predicted" y values
+plot(x,y) #plot the "actual" data points
+lines(x, ypredict, col="red") #plot the predicted values, connected by a red line on the same plot
+```
+  
+<span style="color:green">
+**17.** Create a new vector for values predicted by the quadratic model. Plot the original data for `NeuroComputation`, then use `lines()` to add the predicted values to the plot. Look at the pseudo-code above for help. What can you conclude about the relationship between the size of neuronal networks and the amount of computer memory required to simulate them?
+</span>

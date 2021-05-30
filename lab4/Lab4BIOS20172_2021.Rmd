@@ -1,0 +1,334 @@
+---
+title: 'Lab 4: Markov Models'
+output: html_document
+---
+### <span style="color:green">This assignment is due at 11:59pm the day after your lab.\span
+
+<span style="color:red">Please submit your lab report written in the "Ans4LastnameFirstname.Rmd" file **(please replace Lastname and Firstname with your last and first names, respectively; please do not add spaces, hyphens, or underscores)** and knitting the report to HTML. Upload both the .Rmd and HTML files to the appropriate Lab 4 submission link on Canvas. </span>
+
+### Quick Recap of Coding Concepts
+
+In Lab 2 we used `runif()` and `rnorm()` to sample `n` random values from uniform and normal distributions, respectively. In this lab we will be using `runif()` again, which generates random numbers ranging from 0 to 1, with each number having equal probability of being selected (i.e. there is the same probability of selecting 0.02 as 0.99 as 0.57, etc). Go back and review the lab 2 materials if needed.
+
+Also recall that in Lab 3, when we made functions that output vectors we would use the `numeric()` function to first generate an empty vector which we then filled using a for loop. Go back and review the lab 3 materials if needed.
+
+### A Two-State Markov Model
+
+
+Markov model is a stochastic model used to simulate the non-deterministic behavior of a system over discrete intervals. In a system described by a Markov model, <span style="color:red">the future state of the system is not dependent on its past behavior. Rather, the probability of occupying any particular future state depends solely on the present state.</span> The probabilities of the occurrence of each future state are calculated conditionally on the present state, and these conditional probabilities are sampled to simulate the progression to the next step. The conditional probability distribution of all states is then re-evaluated with respect to the new state in order to define the sampling distribution for the subsequent step, and so on and so forth. In this way, a Markov trajectory is "memory-less." <span style="color:red">That is, it retains no memory of the trajectory it took to arrive in its current state, and its future trajectory depends only on the probability distribution defined by its current state.</span>
+
+Suppose there's a viral epidemic within a certain population. There are two possible states for any person in the population: they could either be infected (I) or healthy (H). Let us assume that being previously infected does not affect the chance that one will be infected again in the future. Suppose that for each day, the probability of becoming infected the next day if you are healthy is 0.21, and the probability of recovering from the infection (becoming healthy) if you are sick is 0.17. 
+
+<center>
+![](./Images/markov_pic1.png)
+</center>
+
+
+
+<span style="color:green">
+1.	What is the probability of a healthy person staying healthy the next day? What is the probability of an infected person still being infected the next day?</span>
+
+
+
+Note that the probability of being healthy or infected on day 2 only depends on which state you are in on day 1. **In general, the probability of being healthy or infected on any day only depends on which state you are in the day before.** 
+
+During any sort of public health crisis, we will certainly have many questions about the fate of the population. If I am healthy today, what is the probability that I will still be healthy a week from now? How many people in the population will become infected after a long time?
+
+We could track the state of an initially healthy individual over 365 days with the code below. Given that we are working with a two-state system, we will code for a healthy or infected individual with either a 0 or 1 (we did something similar when we "flipped a coin" to conduct Bernoilli trials in Lab 2). **We will code a health individual as 0 and an infected individual as 1.**
+
+```{r comment = ''}
+days<-365
+CURstate<-0 #Let's represent the healthy state with 0 and the infected state with 1
+state<-numeric(days)
+for(i in 1:days){
+  randomNum<-runif(1)  #runif(1) randomly generates a number between 0 and 1   
+  if(CURstate==0){
+    if(randomNum < .21){
+      CURstate <- 1
+    }else{
+      CURstate <- 0
+    }
+  }else{
+    if(randomNum < .17){
+      CURstate<-0
+    }else{
+      CURstate<-1 
+    }
+  }
+  state[i]<-CURstate
+}
+state
+```
+
+<span style="color:green">
+2.	Explain how the code above works in your own words, **going line by line.** What is the **purpose** (not the *function*) of `runif(1)` in the fifth line? Why does the state of a person change if `randomNum < .21`? </span>
+
+<span style="color:green">
+3.	Copy and paste the above code into your answers file and make one small change to the code to generate a stochastic path for an individual who is **initially infected**, over 365 days. Make a plot of the state vector versus number of days with the `plot()` command. Add the parameter `type = "o"` to connect each of the points with a line. Re-run the entire code a few times to see some different possible disease histories. Describe what you see.</span>
+
+<span style="color:green">
+4.	Again, copy and paste the above code into your answers file to generate a stoachistic path for an individual who is **initially healthy**, over 365 days. Then plot the state vector. How has it changed?</span>
+
+In the questions above we've modeled the states of *one individual* through the epidemic, but what about the overall population? Will the disease ever be eradicated, or will everybody in the population eventually become infected? Let's suppose the population consists of 5500 people. Let's define an empty matrix to keep track of this population:
+
+```{r comment = ''}
+PopMat <- matrix(0,nrow = 5500, ncol = days)
+```
+
+Each row of `PopMat` corresponds to an individual in the population and the columns correspond to the days. <span style="color:red">Think of it as if we were just stacking up all of the state vectors from question 2 for each individual on top of each other.</span>
+
+<span style="color:green">
+5.	Modify your script from question 3 so that it tracks 4000 initially infected individuals from the population over the 365 days (generating 4000 independent vectors). To do this, set `days` equalt to 365 as you did in question 3 and define `PopMat` as above. Then nest the code (including the lines that set `CURstate` to 1 and define `state` as an empty numeric vector) from question 2 within another for loop that iterates over *the number of individuals* using the variable j, and save the state vector for each individual in the jth row of `PopMat`. **DO NOT PRINT THE `PopMat` MATRIX!**</span>
+
+<span style="color:green">
+6.	Using `PopMat` from question 5, how many individuals were infected on day 1? How many people were infected on day 365? (Remember that each column of `PopMat` represents a day and that infected individuals are in state 1 and healthy are in state 0).</span>
+
+<span style="color:green">
+7. Write a for loop to find the number of people who are infected (i.e. are in state 1) for each day of the simulation, and store the resulting vector of column sums as the variable `num_infected` *Hint: first initialize `num_infected` as an empty vector with `numeric()` and then create a loop to fill it in*.</span>
+
+<span style="color:green">
+8. Create a plot of your `num_infected` vector from question 7. Describe what you see. What happens to the number of infected individuals as time goes on?</span>
+
+<span style="color:green">
+9.	Repeat question 5, but set the initial states of all 4000 individuals to healthy (number 0). Now plot your new `num_infected` vector. Compare your results to your plot from question 8.</span>
+
+As I'm sure you've noticed, our code to model the projection of the disease has gotten a bit messy Modeling Markov chains with matrices is another approach that we can use. 
+
+### Modelling Markov Chains with Matrices
+
+Markov models describe random transitions between discrete states with discrete time steps. We need two matrices: a probability matrix and a transition matrix. For this scenario, the probability matrix will be a 1x2 matrix (1 row, 2 columns) that tells us the **probabilities of currently being in each state**. Let's assume that the first column represents the healthy state and the second column represents the infected state. For example, if we know that an individual is currently healthy, then the probability matrix would be: 
+
+
+<center>
+![](./Images/markov_pic2.png){width=30%}
+</center>
+
+<span style="color:green">
+10.	Write a line of code to print out the probability matrix for an individual who is currently infected (Hint: recall the function `matrix()` that you learned in Lab 1).  </span>
+
+The transition matrix is a 2x2 matrix that tells us the **probabilities of transitioning to a state on the next day. Each row of the transition matrix corresponds to a current state, and the columns represent the possible future states**. Take a look at the blank transition matrix (called $t$) for our scenario below. Because we are working with a 2 state system (individuals are either Healthy or Infected), the transition matrix is 2x2.
+
+<center>
+![alt text](./Images/markov_pic3.png){width=30%}
+</center>
+
+If $i$ represents the day, the number that will go in the second row and first column of $t$ is the probability of being healthy on day $i+1$ (the next day) given that you are infected on day i. (Remember from conditional probability, we can represent this as $\mathbb{P}(H_{i+1} | I_i )$.)  From above, we know that $\mathbb{P}(H_{i+1} | I_i )=0.17$, so the transition matrix becomes
+
+<center>
+![](./Images/markov_pic4.jpg){width=30%}
+</center>
+
+<span style="color:green">
+11.	Use the given transition probabilities and the probabilities calculated in question 1 to finish filling in the transition matrix $t$. Write this matrix in R.</span>
+
+<span style="color:green">
+12.	Execute the command `rowSums(t)` in R to find the sum of each row of the transition matrix. **What do you get?** This is the case for any Markov transition matrix. **Why?** </span>
+
+Now that we have the probability matrix and the transition matrix, we can figure out the probability of an individual being infected or healthy on the next day. All we need to do is to use matrix multiplication to multiply: `P_1 <- P%*%t` (remember that the command for matrix multiplication is `%*%`, rather than `*`). Since `P` is the initial 1x2 probability matrix, this will give us a new 1x2 matrix `P_1`, which is the new probability matrix for one day afterwards. In this new probability matrix, the first column still represents the probability of being healthy, and the second column still represents the probability of being infected.
+
+<span style="color:green">
+13.	Write code to determine the probability of the following 2 scenarios occurring:
+1) If an individual is healthy on day 1, what is the probability that they are infected on day 2? 
+2)What is the probability that they stay healthy on day 2? </span>
+
+**Since the transition probabilities never change, we can calculate the probabilities of being infected and healthy on the any subsequent day the same way.**
+
+<span style="color:green">
+14.	What is the probability that an individual who is initially healthy is infected two days later? What is the probability that the same individual is healthy six days after the initial day?</span>
+
+You may have started to notice a pattern: in general, if we want to find the probability matrix `P_n` after $n$ days have gone by, we can use the equation:
+
+<center>
+![](./Images/markov_pic5.png)
+</center>
+
+Here, `P` is the initial probability vector for day 1, and `P_n` is the probability vector on day $n$. In order to compute the powers of a matrix in R, we need to install a package first. Execute the following commands **in your console**: 
+
+```{r eval = FALSE}
+install.packages("expm") #once you run this line once, you never have to run it again!
+library(expm)
+```
+
+With this new expm package, we can calculate the powers of matrix `t` for any $n$ by writing: `t%^%n`.
+
+<span style="color:green">
+15.	***Include the line `library(expm)` before your code for this question.*** What is the probability matrix of an initially healthy individual 15 days later? What is the probability matrix of an initially healthy individual 150 days later?</span>
+
+<span style="color:green">
+16.	Repeat question 15, but suppose that the individual is initially infected. Compare the probability matrices with the matrices from question 15. Do you notice anything interesting?</span>
+
+<span style="color:green">
+17.	Approximately how many days does it take for the distributions to converge (i.e., how many days does it take for the probability matrices to stop changing? Round to three decimal places to help determine convergence)? Compare the probability matrices between the individual who was initially healthy and the individual who was initially infected.</span>
+
+<span style="color:green">
+18.	Based on your observations in questions 16 and 17, what will eventually happen to the population after the infectious disease is introduced?</span>
+
+<span style="color:green">
+19. Does the initial probability distribution affect the equilibrium probability distribution?
+</span>
+
+<span style="color:green">
+20.	Suppose that the virus causing the disease mutates so that its infection rate (transition from H to I) changes to 0.5. Repeat the computations from question 17. What eventually happens to the population after the mutated virus is introduced?</span>
+
+
+There are many applications for Markov chains in biology! The following question was taken from *Quantifying Life: A Symbiosis of Computation, Mathematics, and Biology* by Dmitry A. Kondrashov.
+
+<span style="color:green">
+21. An ion channel can be in either open or closed state. If it is open, then the probability of closing in 1 microsecond is 0.23; if closed, then the probability of opening in 1 microsecond is 0.27. Create a transition matrix for this process in R. In the long run, what fraction of ion channels will be closed? Show your calculations using R.</span>
+
+
+In our simulation in lab, we saw that $P_n=PT^n$ approaches a constant, equilibrium vector as $n$ gets bigger. Markov chains with this property are called *regular* Markov chains. However, not all chains are regular. One type of Markov chain that has many applications in biology and medicine is called an **absorbing Markov chain**. In an absorbing Markov chain, there is at least one state called the absorbing state where once the state is entered, you cannot get out. For example, in the following diagram, state B is the absorbing state:   
+
+<center>
+![](./Images/markov_pic6.png)
+</center>
+
+<span style="color:green">
+22. A study using Markov chains to estimate a patient's prognosis for improving under various treatment plans gives the following transition probabilities</span>
+
+<center>
+![](./Images/markov_pic7.png){width=60%}
+</center>
+
+<span style="color:green">
+a.	Create a transition matrix for the system depicted in the system above.
+
+<span style="color:green">
+b.	Which is the absorbing state?</span>
+
+<span style="color:green">
+c.	After a very long time passes, what is the probability that a well person will eventually end up dead. </span>
+
+<span style="color:green">
+d.	Find the expected number of cycles that a well patient will continue to be well before dying. (Hint: Find the # of days it takes for the probability of the patient being dead to be > 0.999). Then find the expected number of cycles that a well patient will be ill before dying.
+</span>
+
+
+## Continuous-Time Markov Chains
+
+One really cool thing we can do with Markov chains is that we can use them for more complex disease models. One very common disease model is the SIR model. This is similar to the 2-state Markov model we looked at before. Except now we have three classes people can belong to - susceptible (S), infected (I), or recovered (R). There are many ways to look at such a model. One way is similar to what we did before, consider a single individual and transition probabilities that govern how that person moves from state to state. But here we will consider models that focus more on large groups of people.
+
+A continuous-time Markov chain is different from what we've looked at before in a few of different ways. First, people can move between states randomly, not just from day-to-day or another specified fixed unit of time. Second, we don't consider individual people, but instead we are more interested in the aggregate - how many people are in each state at a time? There's a lot more I can say about how this Markov chain works, but I'm just going to focus on three parameters - contact rate $\beta$, birth/death rate $b$, and recovery rate $\gamma$. 
+
+Contact rate $\beta$ determines how often people come into contact with each other, and thus corresponds to how easily an infection can spread. Birth/death rate $b$ is exactly what it sounds like. This particular model depends on the number of people in the population being constant, so we have to correct for someone potentially dying from the disease by adding another person into S. Don't worry if you don't quite understand this, we mostly care about $b$ with the other variables. Recovery rate $\gamma$ is also about what it sounds like - the rate at which someone recovers from their infection. 
+
+Now the reason why we care about these parameters is that they come together in this model to form a very important statistic for disease spread, the factor **$R_0$**. This parameter tells us basically how many people a given infected person can infect. The formula for $R_0$ is very simple
+
+$$R_0 = \frac{\beta}{b+\gamma}$$
+This has a very intuitive understanding. If $\beta \ge b + \gamma$ then an infected person would be expected to come into contact with someone else faster than they could either die or recover, so $R_0 \ge 1$. Otherwise if $\beta < b + \gamma$, then an infected person would be expected to die or recover faster than they could infect someone else, so $R_0 < 1$. For the next couple questions we will look at how changing our parameters, and thus our $R_0$, changes our resulting graphs.
+
+The code below simulates a continuous-time Markov chain using the Gillespie algorithm, and plots the result. You can read more about the Gillespie algorithm [here](https://en.wikipedia.org/wiki/Gillespie_algorithm). To use this code we will need to install a couple new libraries first
+
+
+
+```{r, eval=FALSE}
+#ONCE YOU RUN THESE TWO LINES ONCE, YOU NEVER HAVE TO RUN THEM AGAIN
+install.packages('tidyverse')
+install.packages('magrittr')
+```
+
+```{r, echo=FALSE, eval=FALSE}
+library(tidyverse)
+library(magrittr)
+```
+
+```{r}
+gillespie <- function(counts, t_max, contact, recovery, birth){
+  # gillespie() takes in the variables explained below and runs gillespie simulation of a Continuous-Time Markov Chain
+  
+  # counts: The initial number of people within each group (SIR)
+  # t_max: The maximum time we want to simulate to
+  # contact: Rate at which people come into contact
+  # recovery: Rate at which people recover from illness
+  # birth: Rate at which new births enter the population (equivalent to people dying too)
+
+  # Should only run if we have at least 1 infection
+  if (counts[2] == 0) {
+    # No infections in this population, no point of running
+    stop("Must initialize with at least one infected person in I (compartment 2)")
+    geterrmessage()
+    return()
+  }
+
+  # Initial time
+  t <- 0.0
+  
+  # Data matrix storing time and counts within each compartment
+  data_mat <- matrix(0, nrow = 1, ncol = 4)
+  data_mat[1, ] <- c(t, counts)
+  
+  while (t < t_max) {
+    # SIR case, only care about infected in compartment 3 
+    if (counts[2] == 0) {
+        break
+    }
+
+    # Calculate propensities of each reaction (S -> I, I -> R, I -> S, R -> S)
+    p <- numeric(4)
+    # S -> I Reaction Propensity: (Number Susceptible)(Number Infected)(Contact Rate)/(Total People)
+    p[1] <- counts[1] * counts[2] * contact / sum(counts)
+    # I -> R Reaction Propensity: (Number Infected)(Recovery Rate)
+    p[2] <- counts[2] * recovery
+    # I -> S Reaction Propensity: (Number Infected)(Birth/Death Rate)
+    p[3] <- counts[2] * birth
+    # R -> S Reaction Propensity: (Number Recovered)(Birth/Death Rate)
+    p[4] <- counts[3] * birth
+    
+    # Generate next time step
+    dt <- rexp(1, sum(p))
+    t <- t + dt
+    
+    # Generate next reaction and update counts
+    reac <- runif(1)
+    if (reac < p[1]/sum(p)) {
+      counts[1] <- counts[1] - 1
+      counts[2] <- counts[2] + 1
+    } else if (reac < sum(p[1:2])/sum(p)) {
+      counts[2] <- counts[2] - 1
+      counts[3] <- counts[3] + 1
+    } else if (reac < sum(p[1:3])/sum(p)) {
+      counts[2] <- counts[2] - 1
+      counts[1] <- counts[1] + 1
+    } else {
+      counts[3] <- counts[3] - 1
+      counts[1] <- counts[1] + 1
+    }
+    
+    # Add time and counts to vector of vectors data
+    data_mat %<>% rbind(c(t, counts))
+  }
+  
+  # Format data in tibble
+  colnames(data_mat) <- c("Time", "S", "I", "R")
+  data_tib <- as_tibble(data_mat)
+  
+  # Return as nice ggplot
+  ggplot(data = data_tib) + geom_path(mapping = aes(x = Time, y = S, color = 'a')) +
+    geom_path(mapping = aes(x = Time, y = I, color = 'b')) +
+    geom_path(mapping = aes(x = Time, y = R, color = 'c')) +
+    scale_color_manual(guide = 'legend', values = c('a' = 'red', 'b' = 'blue', 'c' = 'black'), labels = c('S', 'I', 'R')) +
+    labs(x = "Time (arbitrary units)", y = "Number of People", title = "Simple SIR Test", colour = "Compartment")
+}
+```
+
+
+<span style="color:green">
+23. One reported $R_0$ for COVID-19 is $R_0=1.3$. Run a simulations with the `gillespie()` function given above with 900 susceptible people, 100 infected people, and 0 recovered people. Run this simulation to a maximum time of 200, and set contact rate to $0.85$, birth/death rate to $0.40$, and recovery rate to $0.15$. What happens to the S, I, and R curves over time? (Hint: since there is randomness involved with this simulation, you may want to run the function multiple times). </span>
+
+<span style="color:green">
+24. Rerun your simulation from before, except change the contact rate to $0.55$. Compare this plot to the one you got in 25. How does the change in contact rate (and consequent change in $R_0$) change the S, I, and R curves? What does this mean for the population as a whole and why should we expect this? </span>
+
+## Real Life Markov Models: COVID-2019
+
+Markov chains have many uses for modelling and forecasting in real life events. For instance, a lot of COVID models use a form of Markov modeling called SIR in which people are compartmentalized into 3 general categories: suspectible, infected, and recovered. In the most basic COVID models, there are 4 total states including death. These compartments get a lot more complicated (and realistic) when they factor into account severity of infection, or people that are exposed but not infectious, or who are asymptomatic but infectious. As the compartments get more complicated, so do the probabilities and rates of transitioning between states. The diagram below shows one lab, the [Cobey Lab's](https://cobeylab.uchicago.edu), compartment Markov model for COVID-2019.
+
+![](./Images/markov_pic12.png)
+![](./Images/markov_pic13.png)
+
+By fitting the above model to observed public health data and infering things like transmission rate, researchers can use their model to forecast/predict future trends like hospitalization rate, death rate, etc. By estimating different transmission rates for different public helath interventions (ie total lock-down, some non-essential businesses open, no lock-down), researchers can also use their models to analyze what interventions might work the best. Of course this is a very simplified explanation of how researchers are using Markov with COVID-2019. Below is one of the figures that this lab has created.
+
+![](./Images/markov_pic11.png){width=70%}
+
+
+
+If you're still curious you can look at this one lab's github: https://github.com/cobeylab/covid_IL. You can see mmore of their model's projections at this link https://github.com/cobeylab/covid_IL/tree/master/Forecasting.  A simple Google search for "SIR models COVID" will also turn up many more results. 
